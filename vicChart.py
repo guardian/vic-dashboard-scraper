@@ -6,10 +6,11 @@ import requests
 from vic import getData
 
 #%%
+
 getData()
 
 #%%
-
+pd.options.mode.chained_assignment = None  # default='warn'
 data = scraperwiki.sqlite.select("* from data")
 latest = requests.get('https://interactive.guim.co.uk/docsdata/1XeCK-B3eOKKfN-BCXbV0Ln46_xT7jE6ozTAJ7pAPRvo.json').json()['sheets']
 
@@ -194,9 +195,46 @@ makeSourceBarsLong(just_local[['Local and under investigation','Overseas']])
 #%%
 # df2 = df2.apply(pd.to_numeric)
 
-df2['Total'] = df2.sum(axis=1)
+df2['New cases'] = df2.sum(axis=1)
 vic_total = df2.append(new_total)
 vic_total = vic_total[~vic_total.index.duplicated()]
+vic_total.index = vic_total.index.strftime('%Y-%m-%d')
+
+def makeTotalBars(df):
+
+	# lastUpdatedInt =  df.index[-1]
+	
+	template = [
+			{
+				"title": "Daily Covid-19 infections in Victoria",
+				"subtitle": "Showing the daily count of new cases. The most recent day is from a media release or press conference, and should be considered preliminary. Last updated {date}".format(date=lastUpdatedStr),
+				"footnote": "",
+				"source": " | Health and Human Services Victoria",
+				"dateFormat": "%Y-%m-%d",
+				"xAxisLabel": "",
+				"yAxisLabel": "Cases",
+				"timeInterval":"day",
+				"tooltip":"TRUE",
+				"periodDateFormat":"",
+				"margin-left": "50",
+				"margin-top": "20",
+				"margin-bottom": "20",
+				"margin-right": "20",
+				"xAxisDateFormat": "%b %d"
+				
+			}
+		]
+
+	periods = []
+	key = [{"key":"New cases","colour":"rgb(204, 10, 17)"}]
+	chartId = [{"type":"annotatedbarchart"}]
+	df.fillna('', inplace=True)
+	df = df.reset_index()
+	chartData = df.to_dict('records')
+
+	yachtCharter(template=template, data=chartData, chartId=chartId, chartName="vic-total-corona-cases{test}".format(test=test), key=key)
+
+makeTotalBars(vic_total[['New cases']])
 
 #%%
 

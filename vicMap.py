@@ -13,6 +13,8 @@ test = ""
 
 cols = ['row', 'lga', 'state', 'date', 'cases']
 
+print("Getting data..")
+
 json = requests.get('https://interactive.guim.co.uk/covidfeeds/victoria-export.json').json()
 df = pd.DataFrame(json)
 
