@@ -1,7 +1,5 @@
 .DS_Store
 scraperwiki.sqlite
-vicChart.py
-yachtCharter.py
 payloads.txt
-makeChartUnknown.py
 __pycache__/
+*.csv
