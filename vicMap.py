@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import pandas as pd
-import os
+import requests
 from datetime import datetime, timedelta
 import numpy as np
 from syncData import syncData
-
-#%%
-
-os.system("heroku pg:psql -c \"\copy (SELECT * FROM covid WHERE state = 'victoria') TO dump.csv CSV DELIMITER ','\" --app pollarama")
 
 #%%
 
@@ -18,12 +13,16 @@ test = ""
 
 cols = ['row', 'lga', 'state', 'date', 'cases']
 
-df = pd.read_csv('dump.csv', header=None)
+json = requests.get('https://interactive.guim.co.uk/covidfeeds/victoria-export.json').json()
+df = pd.DataFrame(json)
+
+#%%
 
 df.columns = cols
 df.date = pd.to_datetime(df.date, format="%Y-%m-%d")
 df = df.set_index('date')
 df = df.sort_index(ascending=1)
+df['cases'] = pd.to_numeric(df['cases'])
 
 lastUpdated = df.index[-1]
 four_weeks_ago = lastUpdated - timedelta(days=28)
@@ -61,13 +60,8 @@ lga_daily.to_csv('lga_daily.csv')
 
 one_week_ago = lga_daily.index[-1] - timedelta(days=6)
 
-# print(len(lga_daily[two_weeks_ago:]))
-# print(len(lga_daily[two_weeks_ago:one_week_ago]))
-
-# two = lga_daily[two_weeks_ago:]
-# one = lga_daily[two_weeks_ago:one_week_ago]
-
 #%%
+
 no_negs = lga_daily
 
 no_negs[no_negs < 0] = 0
@@ -89,23 +83,6 @@ for col in totals.index:
 
 lga_df_movement1 = pd.DataFrame(lga_movement)
 
-# lga_movement2 = []
-
-# for col in totals.index:
-# 	print(col)
-# 	row = {}
-# 	row['lga'] = col
-# 	fortnight = lga_daily[two_weeks_ago:]
-# 	fortnight[fortnight < 0] = 0
-# 	fortnight = fortnight.reset_index()
-# 	slope, intercept = np.polyfit(fortnight.index, fortnight[col], 1)
-# 	row['change'] = slope
-# 	row['this_week'] = lga_daily[one_week_ago:][col].sum()
-# 	row['last_week'] = lga_daily[two_weeks_ago:one_week_ago][col].sum()
-# 	row['weekly_change'] = 	row['this_week'] - row['last_week']
-# 	lga_movement2.append(row)
-
-# lga_df_movement = pd.DataFrame(lga_movement2)
 
 #%%
 
