@@ -7,7 +7,7 @@ from vic import getData
 
 #%%
 
-getData()
+# getData()
 
 #%%
 pd.options.mode.chained_assignment = None  # default='warn'
@@ -29,10 +29,12 @@ df.date = pd.to_datetime(df.date, format="%Y-%m-%d")
 
 df = df.set_index('date')
 
-last_5 = df[-5:]
-last_5 = last_5.dropna(how='all')
+# last_5 = df[-5:]
+# last_5 = last_5.dropna(how='all')
 
-df2 = pd.concat([df[:-5], last_5])
+# df2 = pd.concat([df[:-5], last_5])
+
+df = df[:"2020-08-23"]
 
 #%%
 newData = latest['VIC']
@@ -44,7 +46,7 @@ new_df = new_df.apply(pd.to_numeric)
 new_total = new_df
 new_df = new_df.drop(['Total'], axis=1)
 
-df3 = df2.append(new_df)
+df3 = df.append(new_df)
 df3 = df3[~df3.index.duplicated()]
 
 #%%	
@@ -195,8 +197,8 @@ makeSourceBarsLong(just_local[['Local and under investigation','Overseas']])
 #%%
 # df2 = df2.apply(pd.to_numeric)
 
-df2['New cases'] = df2.sum(axis=1)
-vic_total = df2.append(new_total)
+df['New cases'] = df.sum(axis=1)
+vic_total = df.append(new_total)
 vic_total = vic_total[~vic_total.index.duplicated()]
 vic_total.index = vic_total.index.strftime('%Y-%m-%d')
 
