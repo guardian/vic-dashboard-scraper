@@ -33,6 +33,8 @@ short = df[four_weeks_ago:]
 
 short_p = short.pivot(columns='lga', values='cases')
 
+short_p.to_csv('cases_lga.csv')
+
 lga_daily = pd.DataFrame()
 
 for col in short_p.columns:
