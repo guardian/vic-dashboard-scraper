@@ -16,9 +16,23 @@ cols = ['row', 'lga', 'state', 'date', 'cases']
 print("Getting data..")
 
 json = requests.get('https://interactive.guim.co.uk/covidfeeds/victoria-export.json').json()
-df = pd.DataFrame(json)
 
 #%%
+
+url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ9oKYNQhJ6v85dQ9qsybfMfc-eaJ9oKVDZKx-VGUr6szNoTbvsLTzpEaJ3oW_LZTklZbz70hDBUt-d/pub?gid=0&single=true&output=csv"
+print("Getting", url)
+r = requests.get(url)
+with open("vic-latest.csv", 'w') as f:
+	f.write(r.text)
+
+#%%
+
+latest = pd.read_csv('vic-latest.csv)
+
+
+#%%
+
+df = pd.DataFrame(json)
 
 df.columns = cols
 df.date = pd.to_datetime(df.date, format="%Y-%m-%d")
@@ -27,9 +41,19 @@ df = df.sort_index(ascending=1)
 df['cases'] = pd.to_numeric(df['cases'])
 
 lastUpdated = df.index[-1]
-four_weeks_ago = lastUpdated - timedelta(days=28)
+one_month_ago = lastUpdated - timedelta(days=30)
 
-short = df[four_weeks_ago:]
+current_df = df[df.index == lastUpdated].reset_index().set_index('lga')
+
+#%%
+one_month_df = df[df.index == one_month_ago].reset_index().set_index('lga')
+
+current_df['one_month_ago'] = one_month_df['cases']
+
+
+#%%
+
+short = df[one_month_ago:]
 
 short_p = short.pivot(columns='lga', values='cases')
 
@@ -58,11 +82,20 @@ two_weeks_ago = lga_daily.index[-1] - timedelta(days=13)
 
 totals = lga_daily[two_weeks_ago:].sum()
 
+totals_30day = lga_daily[one_month_ago:].sum().to_frame('count').reset_index()
+totals_30day = totals_30day.rename(columns={"index":'place'})
+
+totals_30day['date'] = lastUpdated.strftime('%Y-%m-%d')
+
+totals_30day['count'][totals_30day['count'] < 0] = 0
+
 totals = totals[totals >= 5]
 
 lga_daily.to_csv('lga_daily.csv')
 
 one_week_ago = lga_daily.index[-1] - timedelta(days=6)
+
+blah = totals_30day.to_dict(orient='records')
 
 #%%
 
@@ -92,6 +125,8 @@ lga_df_movement1 = pd.DataFrame(lga_movement)
 
 syncData(lga_movement,'2020/07/vic-corona-map{test}'.format(test=test), "vicChange-2")
 	
+syncData(totals_30day.to_dict(orient='records'),'2020/07/vic-corona-map{test}'.format(test=test), "vicTotals")
+
 # short['rolling_mean'] = df.groupby('lga')['cases'].transform(lambda x: x.rolling(7, 1).mean())
 
 
