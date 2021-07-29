@@ -5,6 +5,7 @@ import requests
 from datetime import datetime, timedelta
 
 #%%
+pd.options.mode.chained_assignment = None  # default='warn'
 
 # getData()
 
