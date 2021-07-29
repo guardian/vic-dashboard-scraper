@@ -62,4 +62,4 @@ def getData():
 
 	print("Done")	
 
-# getData()
+getData()

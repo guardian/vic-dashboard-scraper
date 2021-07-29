@@ -27,8 +27,7 @@ with open("vic-latest.csv", 'w') as f:
 
 #%%
 
-latest = pd.read_csv('vic-latest.csv)
-
+latest = pd.read_csv('vic-latest.csv')
 
 #%%
 
@@ -68,6 +67,9 @@ for col in short_p.columns:
 	lga_daily = pd.concat([lga_daily, tempSeries], axis=1)
 
 # lga_daily = lga_daily[:-2]
+
+
+
 
 last_row = lga_daily[-1:].squeeze()
 allZeroes = True
