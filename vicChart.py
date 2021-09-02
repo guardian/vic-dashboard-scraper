@@ -100,6 +100,8 @@ just_local.index = just_local.index.strftime('%Y-%m-%d')
 
 just_local.to_csv('vic-local.csv')
 
+just_local_log = just_local['2021-07-12':]
+
 #%%
 
 def makeLocalLine(df):
@@ -139,6 +141,50 @@ def makeLocalLine(df):
 	yachtCharter(template=template, options=options, data=chartData, chartId=[{"type":"linechart"}], chartName="local-trend-vic-corona-2020{test}".format(test=test))
 
 makeLocalLine(just_local[['Local, trend','Overseas, trend']])
+
+
+
+#%%
+
+def makeLocalLog(df):
+
+	# lastUpdatedInt =  df.index[-1]
+	
+	template = [
+			{
+				"title": "Trend in local and overseas-related transmission of Covid-19 in Victoria",
+				"subtitle": "Showing the 7 day rolling average of locally and overseas-acquired cases, with those under investigation added to the local category. Last updated {date}".format(date=lastUpdatedStr),
+				"footnote": "",
+				"source": " | Health and Human Services Victoria",
+				"dateFormat": "%Y-%m-%d",
+				"yScaleType":"scaleLog",
+				"xAxisLabel": "",
+				"yAxisLabel": "",
+				"minY": "",
+				"maxY": "",
+				"x_axis_cross_y":"0",
+				"periodDateFormat":"",
+				"margin-left": "50",
+				"margin-top": "30",
+				"margin-bottom": "20",
+				"margin-right": "10",
+				"tooltip":"<strong>{{#formatDate}}{{index}}{{/formatDate}}</strong><br/> Local and under investigation: {{Local, trend}}<br/>Overseas: {{Overseas, trend}}<br/>"
+			}
+		]
+	key = []
+	periods = []
+	labels = []
+	options = [{"colorScheme":"guardian", "lineLabelling":"TRUE"}] 
+	chartId = [{"type":"linechart"}]
+	df.fillna(0, inplace=True)
+	df = df.reset_index()
+	chartData = df.to_dict('records')
+
+	yachtCharter(template=template, options=options, data=chartData, chartId=[{"type":"linechart"}], chartName="local-trend-vic-corona-2020-log{test}".format(test=test))
+
+makeLocalLog(just_local_log[['Local, trend']])
+
+
 
 #%%
 
